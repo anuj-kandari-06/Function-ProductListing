@@ -1,32 +1,33 @@
+import StatusBadge from "../components/StatusBadge"
 function EmployeeTable() {
     const employees = [
         {
-            id: "EMP001",
-            name: "Rahul Sharma",
-            department: "IT",
-            position: "Developer",
-            status: "Active",
+            Id: "EMP001",
+            Name: "Rahul Sharma",
+            Department: "IT",
+            Position: "Developer",
+            Status: "Active",
         },
         {
-            id: "EMP002",
-            name: "Priya Singh",
-            department: "HR",
-            position: "Manager",
-            status: "Active",
+            Id: "EMP002",
+            Name: "Priya Singh",
+            Department: "HR",
+            Position: "Manager",
+            Status: "Active",
         },
         {
-            id: "EMP003",
-            name: "Amit Kumar",
-            department: "Finance",
-            position: "Accountant",
-            status: "Leave",
+            Id: "EMP003",
+            Name: "Amit Kumar",
+            Department: "Finance",
+            Position: "Accountant",
+            Status: "Leave",
         },
         {
-            id: "EMP004",
-            name: "Neha Joshi",
-            department: "Marketing",
-            position: "Executive",
-            status: "Active",
+            Id: "EMP004",
+            Name: "Neha Joshi",
+            Department: "Marketing",
+            Position: "Executive",
+            Status: "Active",
         },
     ]
     return (
@@ -38,30 +39,30 @@ function EmployeeTable() {
                             Employee ID
                         </th>
                         <th className="px-6 py-4 text-sm font-semibold text-gray-600">
-                            name
+                            Name
                         </th>
                         <th className="px-6 py-4 text-sm font-semibold text-gray-600">
-                            department
+                            Department
 
                         </th>
                         <th className="px-6 py-4 text-sm font-semibold text-gray-600">
-                            position
+                            Position
                         </th>
                         <th className="px-6 py-4 text-sm font-semibold text-gray-600">
-                            status
+                            Status
 
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     {employees.map((employee) => (
-                        <tr key={employee.id}
+                        <tr key={employee.Id}
                             className="border-b border-gray-100 hover:bg-gray-50">
-                            <td className="px-6 py-4 text-sm text-gray-700">{employee.id}</td>
-                            <td className="px-6 py-4 text-sm font-medium text-gray-800">{employee.name}</td>
-                            <td className="px-6 py-4 text-sm text-gray-600">{employee.department}</td>
-                            <td className="px-6 py-4 text-sm text-gray-600">{employee.position}</td>
-                            <td className="px-6 py-4 text-sm">{employee.status}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{employee.Id}</td>
+                            <td className="px-6 py-4 text-sm font-medium text-gray-800">{employee.Name}</td>
+                            <td className="px-6 py-4 text-sm text-gray-600">{employee.Department}</td>
+                            <td className="px-6 py-4 text-sm text-gray-600">{employee.Position}</td>
+                            <td className="px-6 py-4 text-sm"><StatusBadge status={employee.Status}/></td>
                         </tr>
                     ))}
                 </tbody>
