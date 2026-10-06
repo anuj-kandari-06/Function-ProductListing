@@ -1,20 +1,10 @@
-import Navbar from "./components/Navbar"
-import Sidebar from "./components/Sidebar"
-import Dashboard from "./Pages/Dashboard"
-import StatCard from "./components/StatCard"
-
+import ProductListing from "./components/ProductListing"
 function App() {
   return (
     <>
-      <Navbar />
-      <div className="flex">
-        <Sidebar />
-        <Dashboard/>
-        <StatCard/>
-      </div>
+    <ProductListing/>
     </>
-  )
+  );
 }
 
 export default App
-StatCard
