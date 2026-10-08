@@ -7,7 +7,7 @@ function ProductListing() {
     const [Search, setSearch] = useState("");
 
     useEffect(() => {
-        fetch("https://dummyjson.com/products")
+        fetch("https://dummyjson.com/products?limit=0")
             .then((response) => response.json())
             .then((data) => {
                 console.log(data);
