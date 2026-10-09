@@ -15,7 +15,7 @@ function ProductCard({ product }) {
                         {product.title}
                     </span>
                 </div>
-            </div>
+            </div>             
 
             <div className="relative h-10 mt-4">
                 <h3 className="absolute inset-0 flex items-center justify-center text-lg font-semibold text-gray-800 group-hover:hidden">

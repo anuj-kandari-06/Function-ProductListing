@@ -1,6 +1,36 @@
 @import "tailwindcss";
 
+.price-slider{
+  position: absolute;
+  top: -5px;
+  left: 0;
+  width: 100%;
+  height: 12px;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+.price-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #2563eb;
+    border: 2px solid white;
+    box-shadow: 0 0 0 1px #2563eb;
+    cursor: pointer;
+    pointer-events: auto;
+}
 
+.price-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #2563eb;
+    border: 2px solid white;
+    cursor: pointer;
+    pointer-events: auto;
+}
 /* 
 :root {
   --text: #6b6375;
