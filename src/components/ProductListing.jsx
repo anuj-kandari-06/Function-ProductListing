@@ -7,6 +7,16 @@ function ProductListing() {
     const [Search, setSearch] = useState("");
     const [priceMin, setPriceMin] = useState(0);
     const [priceMax, setPriceMax] = useState(0);
+    const [minPrice, setMinPrice] = useState(0);
+    const [maxPrice, setMaxPrice] = useState(0);
+    const [categories, setCategories] = useState([]);
+    const [brands, setBrands] = useState([]);
+    const [showAllCategories, setShowAllCategories] = useState(false);
+    const [showAllBrands, setShowAllBrands] = useState(false);
+    const[selectedCategories , setSelectedCategories] = useState([]);
+    const[selectedBrands , setSelectedBrands] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const productsPerPage = 8;
 
     useEffect(() => {
         fetch("https://dummyjson.com/products?limit=0")
@@ -14,36 +24,50 @@ function ProductListing() {
             .then((data) => {
                 console.log(data);
                 setProducts(data.products);
-                setPriceMin(
-                    Math.floor(
-                        Math.min(
-                            ...data.products.map((product) => product.price)
-                        )
+                const prices = data.products.map((product) => product.price);
+                const lowestPrice = Math.floor(Math.min(...prices));
+                const highestPrice = Math.ceil(Math.max(...prices));
+
+                setMinPrice(lowestPrice);
+                setMaxPrice(highestPrice);
+
+                setPriceMin(lowestPrice);
+                setPriceMax(highestPrice);
+
+                const allCategories = [
+                    ...new Set(data.products.map((product) => product.category)
                     )
-                );
-                setPriceMax(
-                    Math.ceil(
-                        Math.max(
-                            ...data.products.map((product) => product.price)
-                        )
+                ];
+                const allBrands = [
+                    ...new Set(data.products.map((product) => product.brand)
+                        .filter(Boolean)
                     )
-                );
+                ];
+                setCategories(allCategories);
+                setBrands(allBrands);
+
             });
     }, []);
 
-    const minPrice = Products.length
-        ? Math.floor
-            (Math.min(...Products.map((product) => product.price))
-            )
-        : 0;
+    const filteredProducts = Products.filter((product) =>{const matchesSearch =  product.title.toLowerCase().includes(Search.toLowerCase());
+    const matchesCategory = selectedCategories.length === 0 ||
+    selectedCategories.includes(product.category);
+    const matchesBrand = selectedBrands.length === 0 ||
+    selectedBrands.includes(product.brand);
+    const matchesPrice = product.price >= priceMin && product.price <= priceMax;
+    
+    return matchesSearch && matchesCategory && matchesBrand && matchesPrice;
+    });
 
-    const maxPrice = Products.length
-        ? Math.ceil
-            (Math.max(...Products.map((product) => product.price))
-            )
-        : 0;
+    console.log("Price range:", priceMin, priceMax);
+console.log("Filtered products:", filteredProducts.length);
 
-    const filteredProducts = Products.filter((product) => product.title.toLowerCase().includes(Search.toLocaleLowerCase())
+    const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+    const indexOfLastProduct = currentPage * productsPerPage;
+    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+    const currentProducts = filteredProducts.slice(
+        indexOfFirstProduct,
+        indexOfLastProduct
     );
 
     return (
@@ -88,103 +112,167 @@ function ProductListing() {
                     <h2 className="text-lg font-bold">
                         Filters
                     </h2>
-                    <div className="mt-6">
-                        <h3 className="font-semibold mb-3">Category</h3>
-                        <div className="space-y-2">
-                            <label className="flex items-center gap-2">
-                                <input type="checkbox" />
-                                <span>Beauty</span>
-                            </label>
-
-                            <label className="flex items-center gap-2">
-                                <input type="checkbox" />
-                                <span>Furniture</span>
-                            </label>
-
-                            <label className="flex items-center gap-2">
-                                <input type="checkbox" />
-                                <span>Groceries</span>
-                            </label>
-
-                            <label className="flex items-center gap-2">
-                                <input type="checkbox" />
-                                <span>Smartphones</span>
-                            </label>
-                        </div>
-                    </div>
-                    
                     <div className="mt-6 border-t border-gray-200 pt-5">
-                        <h3 className="font-semibold mb-3">
-                            Brand
-                        </h3>
-                        <div className="space-y-2">
-                            <label className="flex items-center gap-2">
-                                <input type="checkbox"/>
-                                <span>Apple</span>
-                            </label>
-
-                            <label className="flex items-center gap-2">
-                                <input type="checkbox"/>
-                                <span>Samsung</span>
-                            </label>
-
-                            <label className="flex items-center gap-2">
-                                <input type="checkbox"/>
-                                <span>OPPO</span>
-                            </label>
-
-                            <label className="flex items-center gap-2">
-                                <input type="checkbox"/>
-                                <span>Huawei</span>
-                            </label>
+                        <div className="mb-4 flex items-center justify-between">
+                            <h3 className="font-bold mb-4 text-gray-800">Category</h3>
+                            {showAllCategories && (
+                                <button onClick={() => setShowAllCategories(false)}
+                                    className="text-xl text-gray-500 hover:text-blue-500"
+                                    aria-label="Close all categories">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            )}
                         </div>
+                        <div className={`space-y-3 ${showAllCategories ? "max-h-64 overflow-y-auto pr-2" : ""}`}>
+                            {categories.slice(0, showAllCategories ? categories.length : 8)
+                                .map((category) => (
+                                    <label key={category} className="flex items-center gap-3 text-sm text-gray-700">
+                                        <input type="checkbox" checked={selectedCategories.includes(category)} onChange={(e)=>{
+                                            if(e.target.checked) {
+                                                setSelectedCategories([...selectedCategories,category]);
+                                        
+                                            }else{
+                                                setSelectedCategories(
+                                                    selectedCategories.filter((item)=>item !== category)
+                                                );
+                                            }
+                                            setCurrentPage(1);
+                                        }} 
+                                        className="accent-blue-500" />
+                                        <span className="capitalize">
+                                            {category.replace("-", " ")}
+                                        </span>
+                                    </label>
+                                ))}
+                        </div>
+                        {!showAllCategories && categories.length > 8 && (
+                            <button onClick={() => setShowAllCategories(true)}
+                                className="mt-4 text-sm font-medium text-blue-500 hover:text-blue-700">
+                                +{categories.length - 8} more
+                            </button>
+                        )}
                     </div>
-<div className="mt-6 border-t border-gray-200 pt-5">
-    <h3 className="font-semibold mb-4">
-        Price Range
-    </h3>
 
-    <div className="flex justify-between text-sm mb-4">
-        <span>${priceMin}</span>
-        <span>${priceMax}</span>
-    </div>
-    <div className="relative h-2 rounded-full bg-gray-200">
-        <div className="absolute h-2 rounded-full bg-blue-600"
-            style={{
-                left:`${(priceMin/maxPrice)*100}%`,
-                right:`${100-(priceMax/maxPrice)*100}%`,
-         }}>
-            
-            <input type="range" min={0} max={maxPrice} value={priceMin} onChange={(e)=>{
-                const value =Number(e.target.value);
-                if(value <= priceMax) setPriceMin(value);
-            }}
-            className="price-slider"/>
-            <input type="range" min={0} max={maxPrice} value={priceMax} onChange={(e)=>{
-                const value =Number(e.target.value);
-                if(value >=priceMin) setPriceMax(value);
-            }}
-            className="price-slider"/>
-        </div>
-    </div>
-</div>
+                    <div className="mt-6 border-t border-gray-200 pt-5">
+                        <div className="mb-4 flex items-center justify-between">
+                            <h3 className="font-bold mb-4 text-gray-800">Brand</h3>
+                            {showAllBrands && (
+                                <button onClick={() => setShowAllBrands(false)}
+                                    className="text-xl text-gray-500 hover:text-blue-500"
+                                    aria-label="Close all brands">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            )}
+                        </div>
+                        <div className={`space-y-3 ${showAllBrands ? "max-h-64 overflow-y-auto pr-2" : ""}`}>
+                            {brands.slice(0, showAllBrands ? brands.length : 8)
+                                .map((brand) => (
+                                    <label key={brand} className="flex items-center gap-3 text-sm text-gray-700">
+                                        <input type="checkbox" checked={selectedBrands.includes(brand)} onChange={(e)=>{
+                                            if(e.target.checked) {
+                                                setSelectedBrands([...selectedBrands,brand]);
+                                        
+                                            }else{
+                                                setSelectedBrands(
+                                                    selectedBrands.filter((item)=>item !== brand)
+                                                );
+                                            }
+                                            setCurrentPage(1);
+                                        }} className="accent-blue-500" />
+                                        <span>
+                                            {brand}
+                                        </span>
+                                    </label>
+                                ))}
+                        </div>
+                        {!showAllBrands && brands.length > 8 && (
+                            <button onClick={() => setShowAllBrands(true)}
+                                className="mt-4 text-sm font-medium text-blue-500 hover:text-blue-700">
+                                +{brands.length - 8} more
+                            </button>
+                        )}
+                    </div>
 
+                    <div className="mt-6 border-t border-gray-200 pt-5">
+                        <h3 className="font-bold text-gray-800 mb-5">PRICE</h3>
+
+                        <div className="relative h-5 flex items-center">
+                            <div className="absolute w-full h-1 rounded-full bg-gray-200" />
+
+                            <div
+                                className="absolute h-1 rounded-full bg-blue-500"
+                                style={{
+                                    left: `${((priceMin - minPrice) / (maxPrice - minPrice || 1)) * 100}%`,
+                                    right: `${100 - ((priceMax - minPrice) / (maxPrice - minPrice || 1)) * 100}%`,
+                                }}
+                            />
+
+                            <input
+                                type="range"
+                                min={minPrice}
+                                max={maxPrice}
+                                value={priceMin}
+                                onChange={(e) => {
+                                    const value = Number(e.target.value);
+                                    if (value <= priceMax) { setPriceMin(value);
+                                    setCurrentPage(1);
+                                    }
+                                }}
+                                className="price-slider"
+                            />
+
+                            <input
+                                type="range"
+                                min={minPrice}
+                                max={maxPrice}
+                                value={priceMax}
+                                onChange={(e) => {
+                                    const value = Number(e.target.value);
+                                    if (value >= priceMin) { setPriceMax(value);
+                                    setCurrentPage(1);
+                                    }
+                                }}
+                                className="price-slider"
+                            />
+                        </div>
+
+                        <p className="mt-4 text-sm font-semibold text-gray-800">
+                            ${priceMin.toLocaleString("en-US")} - ${priceMax.toLocaleString("en-US")}
+                        </p>
+                    </div>
                 </aside>
 
                 <div className="flex-1 min-w-0">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 h-full">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6  items-start">
                         {filteredProducts.length === 0 && (
                             <p className="text-center text-gray-500 mt-8">
                                 No Products found.
                             </p>
                         )}
-                        {filteredProducts.map((product) => (
+                        {currentProducts.map((product) => (
                             <ProductCard key={product.id} product={product} />
                         ))}
+                    </div>
+                    <div className="flex justify-center items-center gap-2 mt-8">
+                        <button onClick={() => setCurrentPage(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="px-4 py-2 border rounded-lg disabled:opacity-40">
+                            Previous
+                        </button>
+                        <span className="px-4 py-2">
+                            Page{currentPage} of {totalPages}
+                        </span>
+
+                        <button onClick={() => setCurrentPage(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="px-4 py-2 border rounded-lg disabled:opacity-40">
+                            Next
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     );
 }
+
 export default ProductListing;
